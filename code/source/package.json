@@ -1,0 +1,28 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron --enable-transparent-visuals ."
+  },
+  "author": "suki <s.s.samra.91@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "electron-dl": "^3.3.1",
+    "electron-tray-window": "^1.2.2",
+    "electron-version": "^2.0.1",
+    "electron-winstaller": "^5.0.0",
+    "ffi-napi": "^4.0.3",
+    "jquery": "^3.6.0",
+    "jquery-ui-dist": "^1.13.1",
+    "native-is-elevated": "^0.5.0",
+    "sudo-prompt": "^9.2.1",
+    "ws": "^8.7.0"
+  },
+  "devDependencies": {
+    "electron": "^11.2.3",
+    "electron-packager": "^15.5.1"
+  }
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<p><label for="product">Product:</label></p>
+<textarea id="product" name="product" rows="8" cols="50">
+{
+    "product": "Continuum 2022",
+    "host": "Avid",
+    "version": "15.0.3",
+    "platform": "Windows 64-Bit"
+}
+</textarea>
+<br>
+<button onclick="buy();" value="Buy">Buy</button>
+<br>
+<br>
+<br>
+
+<label id="storage"></label>
+<script>
+const socket = new WebSocket("ws://localhost:1040");
+socket.onmessage = function(event) {
+    var data = event.data
+    document.getElementById("storage").innerHTML = data
+}    
+socket.onopen = function() {
+    
+}    
+
+function buy() {
+    socket.send(document.getElementById("product").value)  
+}
+
+</script>
+</body>
+</html>

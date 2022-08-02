@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+    <title>BorisFX</title>
+  </head>
+
+  <style>
+  
+  </style>
+
+  <body>
+      <button id="exit" class="ui-button ui-widget ui-corner-all">Exit</button>
+      <button id="abortDownloads" class="ui-button ui-widget ui-corner-all">Abort Downloads</button>
+      <button id="borisfx" class="ui-button ui-widget ui-corner-all">Refresh</button>
+       <webview
+            id='mywebview'
+            src="https://borisfx.com/downloads/?" 
+            preload="webview-preload"
+            style='width: 970px; height: 600px'
+            nodeIntegrationInSubFrames
+        />
+
+        <div id="serial_number" title="Serial Number">
+          
+        </div>
+
+        <div id="exit-confirm" title="Exit?">
+          <p><span class="ui-icon ui-icon-alert" ></span>Do you want to Exit?</p>
+        </div>
+        <div id="abort-confirm" title="Abort Downloads?">
+          <p><span class="ui-icon ui-icon-alert" ></span>Do you want to abort downloads?</p>
+        </div>
+  </body>
+
+  <script>
+    // https://borisfx.com/account/manage
+    // https://github.com
+
+      // https://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined
+      window.$ = window.jQuery = require('jquery');
+      require('jquery-ui-dist/jquery-ui')
+
+      $( "#exit" ).click( function( event ) {
+
+        $( "#exit-confirm" ).dialog({
+            resizable: false,
+            height: "auto",
+            width: 400,
+            modal: true,
+            buttons: {
+              "Exit": function() {
+                ipcRenderer.send("exit");
+                $( this ).dialog( "close" );
+              },
+              Cancel: function() {
+                $( this ).dialog( "close" );
+              }
+            }
+          });
+
+      } );
+
+      $( "#abortDownloads" ).click( function( event ) {
+
+        $( "#exit-confirm" ).dialog({
+            resizable: false,
+            height: "auto",
+            width: 400,
+            modal: true,
+            buttons: {
+              "Abort": function() {
+                ipcRenderer.send("abortDownloads");
+                $( this ).dialog( "close" );
+              },
+              Cancel: function() {
+                $( this ).dialog( "close" );
+              }
+            }
+          });
+      } );
+
+
+      $( "#borisfx" ).click( function( event ) {
+        var webview = document.getElementById("mywebview");
+          webview.src = "https://borisfx.com/downloads/?";
+      } );
+
+
+      console.log("Start");
+      window.addEventListener("load", pageFullyLoaded, false);
+      function pageFullyLoaded(e) {
+          console.log("Loaded");
+      }
+
+
+      const { ipcRenderer } = require('electron')    
+      
+
+      ipcRenderer.on('refresh', (e, json) => {
+        var webview = document.getElementById("mywebview");
+        webview.send("webview_refresh", json); 
+      });
+
+
+
+      
+      ipcRenderer.on("download_status", (event, arg) => {
+          var webview = document.getElementById("mywebview");
+          webview.send("webview_download_status", arg); 
+      });
+
+      ipcRenderer.on("download_complete", (event, arg) => {
+          var webview = document.getElementById("mywebview");
+          webview.send("webview_download_complete", arg); 
+      });
+
+      ipcRenderer.on("download_paused", (event, arg) => {
+          var webview = document.getElementById("mywebview");
+          webview.send("webview_download_paused", arg); 
+      });      
+
+      ipcRenderer.on("uninstall_status", (event, arg) => {
+          var webview = document.getElementById("mywebview");
+          webview.send("webview_uninstall_status", arg); 
+      });
+
+      // HACK
+      function generateUUID() { // Public Domain/MIT
+          var d = new Date().getTime();//Timestamp
+          var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+              var r = Math.random() * 16;//random number between 0 and 16
+              if(d > 0){//Use timestamp until depleted
+                  r = (d + r)%16 | 0;
+                  d = Math.floor(d/16);
+              } else {//Use microseconds since page-load if supported
+                  r = (d2 + r)%16 | 0;
+                  d2 = Math.floor(d2/16);
+              }
+              return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+          });
+      }
+      
+      ipcRenderer.on("buy", (event, arg) => {
+          arg["serial_number"] = generateUUID(); // HACK
+          ipcRenderer.send("serial_number_ready", arg);
+      });
+
+      ipcRenderer.on("show_license", (event, serial_number) => {
+
+        $( "#serial_number" ).dialog({
+            resizable: false,
+            height: "auto",
+            width: 400,
+            modal: true,
+            open: function() {
+              var markup = serial_number;
+              $(this).html(markup);
+            },
+            buttons: {
+              Ok: function() {
+                $( this ).dialog( "close" );
+              }
+            }
+          });
+      });
+
+      
+
+
+
+  </script>
+
+</html>
